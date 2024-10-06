@@ -1,0 +1,34 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: challenge-app-ingress
+  namespace: challenger-05
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+
+    nginx.ingress.kubernetes.io/limit-rps: "3" # Limita las requests por segundo desde una IP.
+    nginx.ingress.kubernetes.io/limit-burst-multiplier: "1" #  Controla explosiones de tráfico permitiendo 1 más de RPS.
+    nginx.ingress.kubernetes.io/limit-rate-after: "200" # Empieza a limitar la tasa después de 200 bytes.
+
+    nginx.ingress.kubernetes.io/proxy-buffer-size: "16k"     # Define el tamaño del buffer para respuestas proxy.
+    nginx.ingress.kubernetes.io/proxy-buffers-number: "8"    # Especifica el número de buffers de respuesta proxy.
+    nginx.ingress.kubernetes.io/proxy-busy-buffers-size: "64k" # Tamaño de buffers usados simultáneamente.
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"    # Tiempo de espera máximo para leer una respuesta.
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"    # Tiempo máximo para enviar una solicitud.
+    nginx.ingress.kubernetes.io/proxy-buffering: "on"        # Habilitar buffering en el proxy
+
+    nginx.ingress.kubernetes.io/proxy-body-size: "20m" # Establece el tamaño máximo para subir archivos.
+spec:
+  ingressClassName: nginx
+  rules:
+  # Change the hostname to a unique value
+  - host: ws-challenger-05.dafonim.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: app-service
+            port:
+              number: 80
